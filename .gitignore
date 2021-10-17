@@ -60,3 +60,4 @@ sysinfo.txt
 
 # GNU/Linux specials
 .directory
+*.log
