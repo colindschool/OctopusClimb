@@ -8,6 +8,12 @@ public class Octopus : MonoBehaviour
     [SerializeField] private float allowedStretchDistance;
 
     private bool isSelected = false;
+    private Collider headCollider;
+
+    private void Awake()
+    {
+        headCollider = GetComponent<Collider>();
+    }
 
     private void Update()
     {
@@ -15,7 +21,7 @@ public class Octopus : MonoBehaviour
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out RaycastHit hit);
-            if(hit.collider == transform.collider)
+            if(hit.collider == headCollider)
             {
                 isSelected = true;
             }
