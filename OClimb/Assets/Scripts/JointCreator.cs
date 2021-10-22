@@ -1,43 +1,61 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 
 public class JointCreator : MonoBehaviour
 {
     [SerializeField] private List<GameObject> allBones;
+    [SerializeField] private List<Joint> allJoints;
+    [SerializeField] private GameObject targetPoint;
+    private float[] angles;
+
+    public ReadOnlyCollection<Joint> AllJoints { get => allJoints.AsReadOnly(); }
+
+    private void Awake()
+    {
+        angles = new float[allJoints.Count];
+        for(int i = 0; i < allBones.Count; ++i)
+        {
+            Rigidbody boneRigidBody = allBones[i].GetComponent<Rigidbody>();
+            if (boneRigidBody != null)
+                Destroy(boneRigidBody);
+        }
+    }
+
+    private void Update()
+    {
+        if(targetPoint != null)
+        {
+            IKManager.InverseKinematics(targetPoint.transform.position, this, angles);
+        }
+    }
 
     [ContextMenu("CreateJoints")]
     private void CreateJoints()
     {
         allBones = new List<GameObject>();
-
+        allJoints = new List<Joint>();
 
         GetBone(transform);
 
-        Rigidbody previousRB = null;
-
-        for (int i =0; i < allBones.Count; ++i)
+        for(int i = 0; i < allBones.Count; ++i)
         {
-            if (allBones[i].GetComponent<HingeJoint>() != null)
-                Destroy(allBones[i].GetComponent<HingeJoint>());
-            HingeJoint joint = allBones[i].AddComponent<HingeJoint>();
-            Rigidbody rigidbody = allBones[i].GetComponent<Rigidbody>();
-            joint.axis = new Vector3(0, 1, 0);
-            // Broken do not use
-            //rigidbody.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationZ;
-
-            if (previousRB != null)
-                joint.connectedBody = previousRB;
-
-            previousRB = rigidbody;
+            Joint boneJoint = allBones[i].GetComponent<Joint>();
+            if (boneJoint == null)
+            {
+                boneJoint = allBones[i].AddComponent<Joint>();
+            }
+            allJoints.Add(boneJoint);
         }
+        angles = new float[allJoints.Count];
     }
 
     private void GetBone(Transform bone)
     {
         allBones.Add(bone.gameObject);
 
-        foreach(Transform child in bone)
+        foreach (Transform child in bone)
         {
             GetBone(child);
         }
