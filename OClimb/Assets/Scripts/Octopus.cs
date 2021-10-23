@@ -33,15 +33,12 @@ public class Octopus : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             transform.position = Vector3.zero;
         }
-    }
 
-    private void FixedUpdate()
-    {
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out RaycastHit hit);
@@ -82,10 +79,11 @@ public class Octopus : MonoBehaviour
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.Set(mousePos.x, mousePos.y, clickLocation.z);
         // Calculate the direction and force to apply to the octopus
-        Vector3 direction = clickLocation - mousePos;
+        Vector3 direction = (clickLocation - mousePos).normalized;
         float distancePowerRatio = Vector3.Distance(clickLocation, mousePos) / DISTANCE_CLAMP;
         distancePowerRatio = Mathf.Clamp01(distancePowerRatio);
         float force = distancePowerRatio * maxPower;
+        Debug.Log(force);
         DisconnectTentacles();
         // Apply force to the Octopus rigidbody
         octopusRigidbody.AddForce(force * direction, ForceMode.Impulse);
